@@ -1,0 +1,15 @@
+description: >
+  This command schedules a cron job to scan the current production image
+parameters:
+  repo:
+    type: string
+steps:
+  - checkout
+  - set_env
+  - setup_remote_docker:
+      version: 19.03.12
+  - aws-ecr/ecr-login
+  - run: |
+      docker pull ${AWS_ECR_ACCOUNT_URL}/<< parameters.repo >>:${BRANCH}
+  - trivy_scan:
+      trivy-scan-target: ${AWS_ECR_ACCOUNT_URL}/<< parameters.repo >>:${BRANCH}

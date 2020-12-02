@@ -1,0 +1,6 @@
+description: >
+  This command sets default environment variables used in most HCC builds.
+steps:
+  - run: echo "export SHORT_GIT_HASH=$(echo ${CIRCLE_SHA1:0:7})" >> ${BASH_ENV}
+  - run: echo "export BRANCH=$(echo ${CIRCLE_BRANCH//'/'/-})" >> ${BASH_ENV}
+  - run: echo "export DOCKER_BUILDKIT=1" >> ${BASH_ENV}

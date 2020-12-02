@@ -1,0 +1,23 @@
+description: >
+  This command sets default environment variables used in most HCC builds.
+parameters:
+  repo:
+    type: string
+  tag:
+    type: string
+    default: latest
+  vuln-tag:
+    type: string
+    default: ""
+steps:
+  - run: |
+      if [ $TRIVY_PASS == 0 ]; then
+          suffix="<< parameters.vuln-tag >>"
+      else
+          suffix=""
+      fi
+      
+      IFS="," read -ra DOCKER_TAGS \<<< "<< parameters.tag >>"
+      for tag in "${DOCKER_TAGS[@]}"; do
+          docker push ${AWS_ECR_ACCOUNT_URL}/<<parameters.repo>>:${tag}${suffix}
+      done
