@@ -1,0 +1,22 @@
+description: >
+  Tags an image with the hcc default tags
+parameters:
+  image:
+    type: string
+  label-prefix:
+    type: string
+    default: ""
+  vuln-tag:
+    type: string
+    default: ""
+steps:
+  - run: |
+      if [ $TRIVY_PASS == 0 ]; then
+          # use this to tag images 
+          suffix="<< parameters.vuln-tag >>"
+      else
+          suffix=""
+      fi
+      docker tag << parameters.image >>:<< parameters.label-prefix >>latest ${AWS_ECR_ACCOUNT_URL}/<< parameters.image >>:<< parameters.label-prefix >>latest${suffix}
+      docker tag << parameters.image >>:<< parameters.label-prefix >>latest ${AWS_ECR_ACCOUNT_URL}/<< parameters.image >>:${BRANCH}${suffix}
+      docker tag << parameters.image >>:<< parameters.label-prefix >>latest ${AWS_ECR_ACCOUNT_URL}/<< parameters.image >>:rev-${SHORT_GIT_HASH}${suffix}

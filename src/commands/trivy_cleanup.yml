@@ -1,0 +1,13 @@
+description: >
+  Cleanup after running trivy
+steps:
+  - run: |
+      if [ $TRIVY_PASS == 1 ]; then
+          circleci-agent step halt
+      fi
+  - slack/notify:
+      channel: CAV48UXJT
+      color: '#ed5c5c'
+      message: ':red_circle: :unlock: :skull: <!here> ${CIRCLE_PROJECT_REPONAME} failed security scan! ${TRIVY_COUNT} critical issues found.'
+  - run: |
+      exit 1;

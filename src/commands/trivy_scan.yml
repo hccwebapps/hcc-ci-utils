@@ -1,0 +1,45 @@
+description: >
+  This command installs trivy and uses it to scan an image
+parameters:
+  trivy-scan-target:
+    type: string
+  trivy-scan-artifact:
+    type: string
+    default: /tmp/trivy_scan.txt
+steps:
+  - run:
+      name: Install trivy
+      command: |
+        VERSION=$(curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+        wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION}/trivy_${VERSION}_Linux-64bit.tar.gz
+        tar zxvf trivy_${VERSION}_Linux-64bit.tar.gz
+          
+  - run:
+      name: Scan Docker Image with trivy
+      command: |
+        ./trivy image --no-progress << parameters.trivy-scan-target >> 2>&1 | tee << parameters.trivy-scan-artifact >>
+  - run:
+      name: Scan docker image - json output
+      command: |
+        ./trivy image -f json -o /tmp/trivy_scan.json --severity CRITICAL --no-progress << parameters.trivy-scan-target >>
+  - run: 
+      name: Check critical vuln count
+      command: |
+        export TRIVY_COUNT=$(jq '[.[] | .Vulnerabilities | length] | add' /tmp/trivy_scan.json)
+        echo "export TRIVY_COUNT=$(echo ${TRIVY_COUNT})" >> ${BASH_ENV}
+        if [ $TRIVY_COUNT == 0 ]; then 
+            echo "export TRIVY_PASS=1" >> ${BASH_ENV} 
+        else 
+            echo "export TRIVY_PASS=0" >> ${BASH_ENV}
+        fi
+        export TRIVY_HEAD=$(head -n7 << parameters.trivy-scan-artifact >> | tail -n3 | awk '{printf "%s\\n", $0}')
+        echo "export TRIVY_HEAD='$(echo ${TRIVY_HEAD})'" >> ${BASH_ENV}
+        cat ${BASH_ENV}
+
+  - store_artifacts:
+      path: << parameters.trivy-scan-artifact >>
+  - run: echo $TRIVY_HEAD
+  - slack/notify:
+      channel: CAV48UXJT
+      color: '#42e2f4'
+      message: ':fingerscrossed: :see_no_evil: ${CIRCLE_PROJECT_REPONAME} security scan results:\n \`\`\`${TRIVY_HEAD}\`\`\`\n'
