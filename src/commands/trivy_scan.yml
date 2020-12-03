@@ -13,7 +13,7 @@ steps:
         VERSION=$(curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
         wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION}/trivy_${VERSION}_Linux-64bit.tar.gz
         tar zxvf trivy_${VERSION}_Linux-64bit.tar.gz
-          
+
   - run:
       name: Scan Docker Image with trivy
       command: |
@@ -22,14 +22,14 @@ steps:
       name: Scan docker image - json output
       command: |
         ./trivy image -f json -o /tmp/trivy_scan.json --severity CRITICAL --no-progress << parameters.trivy-scan-target >>
-  - run: 
+  - run:
       name: Check critical vuln count
       command: |
         export TRIVY_COUNT=$(jq '[.[] | .Vulnerabilities | length] | add' /tmp/trivy_scan.json)
         echo "export TRIVY_COUNT=$(echo ${TRIVY_COUNT})" >> ${BASH_ENV}
-        if [ $TRIVY_COUNT == 0 ]; then 
-            echo "export TRIVY_PASS=1" >> ${BASH_ENV} 
-        else 
+        if [ $TRIVY_COUNT == 0 ]; then
+            echo "export TRIVY_PASS=1" >> ${BASH_ENV}
+        else
             echo "export TRIVY_PASS=0" >> ${BASH_ENV}
         fi
         export TRIVY_HEAD=$(head -n7 << parameters.trivy-scan-artifact >> | tail -n3 | awk '{printf "%s\\n", $0}')

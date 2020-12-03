@@ -12,7 +12,7 @@ parameters:
 steps:
   - run: |
       if [ $TRIVY_PASS == 0 ]; then
-          # use this to tag images 
+          # use this to tag images
           suffix="<< parameters.vuln-tag >>"
       else
           suffix=""
