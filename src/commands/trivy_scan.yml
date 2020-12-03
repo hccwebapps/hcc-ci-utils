@@ -32,12 +32,14 @@ steps:
         else
             echo "export TRIVY_PASS=0" >> ${BASH_ENV}
         fi
-        export TRIVY_HEAD=$(head -n7 << parameters.trivy-scan-artifact >> | tail -n3 | awk '{printf "%s\\n", $0}')
+        export TRIVY_HEAD=$(grep -i -m 1 -A 3 '^$' << parameters.trivy-scan-artifact >> | awk '{printf "%s\\n", $0}')
         echo "export TRIVY_HEAD='$(echo ${TRIVY_HEAD})'" >> ${BASH_ENV}
         cat ${BASH_ENV}
 
   - store_artifacts:
       path: << parameters.trivy-scan-artifact >>
+  - store_artifacts:
+      path: /tmp/trivy_scan.json
   - run: echo $TRIVY_HEAD
   - slack/notify:
       channel: CAV48UXJT
