@@ -16,7 +16,7 @@ steps:
       else
           suffix=""
       fi
-      
+
       IFS="," read -ra DOCKER_TAGS \<<< "<< parameters.tag >>"
       for tag in "${DOCKER_TAGS[@]}"; do
           docker push ${AWS_ECR_ACCOUNT_URL}/<<parameters.repo>>:${tag}${suffix}
