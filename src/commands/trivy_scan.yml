@@ -17,11 +17,11 @@ steps:
   - run:
       name: Scan Docker Image with trivy
       command: |
-        ./trivy image --no-progress << parameters.trivy-scan-target >> 2>&1 | tee << parameters.trivy-scan-artifact >>
+        ./trivy --ignore-unfixed --severity CRITICAL image --no-progress << parameters.trivy-scan-target >> 2>&1 | tee << parameters.trivy-scan-artifact >>
   - run:
       name: Scan docker image - json output
       command: |
-        ./trivy image -f json -o /tmp/trivy_scan.json --severity CRITICAL --no-progress << parameters.trivy-scan-target >>
+        ./trivy --ignore-unfixed --severity CRITICAL image -f json -o /tmp/trivy_scan.json --severity CRITICAL --no-progress << parameters.trivy-scan-target >>
   - run:
       name: Check critical vuln count
       command: |
