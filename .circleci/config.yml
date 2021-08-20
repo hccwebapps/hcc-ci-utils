@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   # Replace this with your own!
-  # hcc-ci-utils: hccwebapps/hcc-ci-utils@<<pipeline.parameters.dev-orb-version>>
+  hcc-ci-utils: hccwebapps/hcc-ci-utils@<<pipeline.parameters.dev-orb-version>>
   orb-tools: circleci/orb-tools@10.0
   bats: circleci/bats@1.0
   shellcheck: circleci/shellcheck@2.0
@@ -65,11 +65,11 @@ workflows:
           requires: [hold-for-dev-publish]
       # Trigger an integration workflow to test the
       # dev:${CIRCLE_SHA1:0:7} version of your orb
-      # - orb-tools/trigger-integration-tests-workflow:
-      #     name: trigger-integration-dev
-      #     context: orb-publishing
-      #     requires:
-      #       - orb-tools/publish-dev
+      - orb-tools/trigger-integration-tests-workflow:
+          name: trigger-integration-dev
+          context: orb-publishing
+          requires:
+            - orb-tools/publish-dev
 
   # This `integration-test_deploy` workflow will only run
   # when the run-integration-tests pipeline parameter is set to true.
