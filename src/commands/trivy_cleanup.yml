@@ -8,6 +8,4 @@ steps:
   - slack/notify:
       channel: CAV48UXJT
       color: '#ed5c5c'
-      message: ':red_circle: :unlock: :skull: <!here> ${CIRCLE_PROJECT_REPONAME} failed security scan! ${TRIVY_COUNT} critical issues found.'
-  - run: |
-      exit 1;
+      message: ':red_circle: :unlock: :skull: ${CIRCLE_PROJECT_REPONAME} failed security scan! ${TRIVY_COUNT} critical issues found.'
