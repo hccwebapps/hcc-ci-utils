@@ -6,8 +6,7 @@ parameters:
 steps:
   - checkout
   - set_env
-  - setup_remote_docker:
-      version: 19.03.12
+  - setup_remote_docker
   - aws-ecr/ecr-login
   - run: |
       docker pull ${AWS_ECR_ACCOUNT_URL}/<< parameters.repo >>:${BRANCH}
