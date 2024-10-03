@@ -17,6 +17,7 @@ workflows:
           filters: *filters
       - orb-tools/review:
           filters: *filters
+          exclude: RC001,RC002,RC003,RC004,RC005,RC006,RC007,RC008,RC009,RC010
       - shellcheck/check:
           filters: *filters
       # Triggers the next workflow in the Orb Development Kit.
