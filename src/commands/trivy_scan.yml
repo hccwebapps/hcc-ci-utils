@@ -18,12 +18,12 @@ steps:
       name: Scan Docker Image with trivy
       command: |
         export TRIVY_DISABLE_VEX_NOTICE=1
-        ./trivy image --db-repository public.ecr.aws/aquasecurity/trivy-db:2 --java-repository public.ecr.aws/aquasecurity/trivy-java-db --ignore-unfixed --severity CRITICAL --no-progress << parameters.trivy-scan-target >> 2>&1 | tee << parameters.trivy-scan-artifact >>
+        ./trivy image --db-repository public.ecr.aws/aquasecurity/trivy-db:2 --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db --ignore-unfixed --severity CRITICAL --no-progress << parameters.trivy-scan-target >> 2>&1 | tee << parameters.trivy-scan-artifact >>
   - run:
       name: Scan docker image - json output
       command: |
         export TRIVY_DISABLE_VEX_NOTICE=1
-        ./trivy image --db-repository public.ecr.aws/aquasecurity/trivy-db:2 --java-repository public.ecr.aws/aquasecurity/trivy-java-db --ignore-unfixed --severity CRITICAL -f json -o /tmp/trivy_scan.json --severity CRITICAL --no-progress << parameters.trivy-scan-target >>
+        ./trivy image --db-repository public.ecr.aws/aquasecurity/trivy-db:2 --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db --ignore-unfixed --severity CRITICAL -f json -o /tmp/trivy_scan.json --severity CRITICAL --no-progress << parameters.trivy-scan-target >>
   - run:
       name: Check critical vuln count
       command: |
