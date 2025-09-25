@@ -34,7 +34,9 @@ steps:
         else
             echo "export TRIVY_PASS=0" >> ${BASH_ENV}
         fi
-        export TRIVY_HEAD=$(grep -i -m 1 -A 3 '^$' << parameters.trivy-scan-artifact >> | awk '{printf "%s\\n", $0}')
+        TARGET_LINE=$(grep -E "^[a-zA-Z0-9:._-]+.*\(.*\)$" << parameters.trivy-scan-artifact >> | head -1)
+        TOTAL_LINE=$(grep "Total:" << parameters.trivy-scan-artifact >> | head -1)
+        export TRIVY_HEAD=$(printf "%s\\n%s" "$TARGET_LINE" "$TOTAL_LINE")
         echo "export TRIVY_HEAD='$(echo ${TRIVY_HEAD})'" >> ${BASH_ENV}
         cat ${BASH_ENV}
 
