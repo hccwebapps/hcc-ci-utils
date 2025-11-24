@@ -27,7 +27,7 @@ steps:
   - run:
       name: Check critical vuln count
       command: |
-        export TRIVY_COUNT=$(jq '[.[] | .Vulnerabilities | length] | add' /tmp/trivy_scan.json)
+        export TRIVY_COUNT=$(jq '[.Results[]? | .Vulnerabilities[]?] | length' /tmp/trivy_scan.json)
         echo "export TRIVY_COUNT=$(echo ${TRIVY_COUNT})" >> ${BASH_ENV}
         if [ $TRIVY_COUNT == 0 ]; then
             echo "export TRIVY_PASS=1" >> ${BASH_ENV}
