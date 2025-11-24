@@ -29,14 +29,14 @@ steps:
       command: |
         export TRIVY_COUNT=$(jq '[.Results[]? | .Vulnerabilities[]?] | length' /tmp/trivy_scan.json)
         echo "export TRIVY_COUNT=$(echo ${TRIVY_COUNT})" >> ${BASH_ENV}
-        if [ $TRIVY_COUNT == 0 ]; then
+        if [ "$TRIVY_COUNT" = "0" ]; then
             echo "export TRIVY_PASS=1" >> ${BASH_ENV}
         else
             echo "export TRIVY_PASS=0" >> ${BASH_ENV}
         fi
-        TARGET_LINE=$(grep -E "^[a-zA-Z0-9:._]+.*\(.*\)$" << parameters.trivy-scan-artifact >> | head -1)
-        TOTAL_LINE=$(grep "Total:" << parameters.trivy-scan-artifact >> | head -1)
-        export TRIVY_HEAD=$(printf "%s\\n%s" "$TARGET_LINE" "$TOTAL_LINE")
+        VULN_COUNT_OUTPUT=$(grep "Total:" << parameters.trivy-scan-artifact >> | head -1 || true)
+        VULN_COUNT_OUTPUT=${VULN_COUNT_OUTPUT:-"Total: 0"}
+        export TRIVY_HEAD=$(printf "<< parameters.trivy-scan-target >> --- %s" "$VULN_COUNT_OUTPUT")
         echo "export TRIVY_HEAD='$(echo ${TRIVY_HEAD})'" >> ${BASH_ENV}
         cat ${BASH_ENV}
 
