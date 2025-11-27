@@ -1,0 +1,25 @@
+description: >
+  Build, tag, and push the app build stage of the docker image.
+parameters:
+  dockerfile:
+    type: string
+    default: compose/production/django/Dockerfile
+  target:
+    type: string
+    default: app_build
+steps:
+  - run: 
+      command: |
+        echo -e "${HCC_SSH_KEY}" > /dev/shm/hcckey && \
+        docker build -t ${CIRCLE_PROJECT_REPONAME}:circleci-app-build -f << parameters.dockerfile >> \
+        --target << parameters.target >> \
+        --cache-from ${AWS_ECR_ACCOUNT_URL}/${CIRCLE_PROJECT_REPONAME}:circleci-app-build \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
+        --build-arg APP_VERSION=${CIRCLE_SHA1} \
+        --ssh hccwebapps_github_ssh_key=/dev/shm/hcckey \
+        --progress=plain \
+        .
+  - run:
+      command: |
+        docker tag ${CIRCLE_PROJECT_REPONAME}:circleci-app-build ${AWS_ECR_ACCOUNT_URL}/${CIRCLE_PROJECT_REPONAME}:circleci-app-build
+        docker push ${AWS_ECR_ACCOUNT_URL}/${CIRCLE_PROJECT_REPONAME}:circleci-app-build

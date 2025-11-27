@@ -1,22 +1,18 @@
 description: >
-  Tags an image with the hcc default tags
+  Tags an image for ECR with the specified tags.
 parameters:
-  image:
+  repo:
     type: string
-  label-prefix:
+    default: ${CIRCLE_PROJECT_REPONAME}
+  source_tag:
     type: string
-    default: ""
-  vuln-tag:
+    default: circleci-app-runtime
+  tags:
     type: string
-    default: ""
+    default: latest,${BRANCH},rev-${SHORT_GIT_HASH}
 steps:
   - run: |
-      if [ $TRIVY_PASS == 0 ]; then
-          # use this to tag images
-          suffix="<< parameters.vuln-tag >>"
-      else
-          suffix=""
-      fi
-      docker tag << parameters.image >>:<< parameters.label-prefix >>latest ${AWS_ECR_ACCOUNT_URL}/<< parameters.image >>:<< parameters.label-prefix >>latest${suffix}
-      docker tag << parameters.image >>:<< parameters.label-prefix >>latest ${AWS_ECR_ACCOUNT_URL}/<< parameters.image >>:${BRANCH}${suffix}
-      docker tag << parameters.image >>:<< parameters.label-prefix >>latest ${AWS_ECR_ACCOUNT_URL}/<< parameters.image >>:rev-${SHORT_GIT_HASH}${suffix}
+      IFS="," read -ra DOCKER_TAGS \<<< "<< parameters.tags >>"
+      for tag in "${DOCKER_TAGS[@]}"; do
+          docker tag << parameters.repo >>:<< parameters.source_tag >> ${AWS_ECR_ACCOUNT_URL}/<< parameters.repo >>:${tag}
+      done
