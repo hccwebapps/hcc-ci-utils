@@ -3,6 +3,7 @@ description: >
 parameters:
   trivy-scan-target:
     type: string
+    default: ${CIRCLE_PROJECT_REPONAME}:circleci-app-runtime
   trivy-scan-artifact:
     type: string
     default: /tmp/trivy_scan.txt

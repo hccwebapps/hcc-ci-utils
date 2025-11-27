@@ -1,23 +1,15 @@
 description: >
-  This command sets default environment variables used in most HCC builds.
+  Pushes an image to ECR with the specified tags.
 parameters:
   repo:
     type: string
-  tag:
+    default: ${CIRCLE_PROJECT_REPONAME}
+  tags:
     type: string
-    default: latest
-  vuln-tag:
-    type: string
-    default: ""
+    default: latest,${BRANCH},rev-${SHORT_GIT_HASH}
 steps:
   - run: |
-      if [ $TRIVY_PASS == 0 ]; then
-          suffix="<< parameters.vuln-tag >>"
-      else
-          suffix=""
-      fi
-
-      IFS="," read -ra DOCKER_TAGS \<<< "<< parameters.tag >>"
+      IFS="," read -ra DOCKER_TAGS \<<< "<< parameters.tags >>"
       for tag in "${DOCKER_TAGS[@]}"; do
-          docker push ${AWS_ECR_ACCOUNT_URL}/<<parameters.repo>>:${tag}${suffix}
+          docker push ${AWS_ECR_ACCOUNT_URL}/<<parameters.repo>>:${tag}
       done

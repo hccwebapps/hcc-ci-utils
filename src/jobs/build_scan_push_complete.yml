@@ -1,5 +1,5 @@
 docker:
-  - image: cimg/python:3.7
+  - image: cimg/python:3.11
 parameters:
   channel:
     type: string
