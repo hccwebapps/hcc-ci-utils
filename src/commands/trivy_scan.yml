@@ -51,6 +51,17 @@ steps:
         --no-progress \
         << parameters.trivy-scan-target >>
   - run:
+      name: Generate SBOM
+      command: |
+        export TRIVY_DISABLE_VEX_NOTICE=1
+        ./trivy image \
+        --db-repository public.ecr.aws/aquasecurity/trivy-db:2 \
+        --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db \
+        --format cyclonedx \
+        -o /tmp/trivy_sbom.json \
+        --no-progress \
+        << parameters.trivy-scan-target >>
+  - run:
       name: Check critical vuln count
       command: |
         export TRIVY_COUNT=$(jq '[.Results[]? | .Vulnerabilities[]?] | length' /tmp/trivy_scan.json)
@@ -70,6 +81,13 @@ steps:
       path: << parameters.trivy-scan-artifact >>
   - store_artifacts:
       path: /tmp/trivy_scan.json
+  - store_artifacts:
+      path: /tmp/trivy_sbom.json
+  - run:
+      name: Upload SBOM to S3
+      command: |
+        TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
+        aws s3 cp /tmp/trivy_sbom.json s3://hcc-sbom-shared/docker_image_scans/${CIRCLE_PROJECT_REPONAME}/${TIMESTAMP}/sbom.json
   - run: echo $TRIVY_HEAD
   - slack/notify:
       channel: CAV48UXJT
