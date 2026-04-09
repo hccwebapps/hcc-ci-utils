@@ -58,7 +58,7 @@ steps:
         --db-repository public.ecr.aws/aquasecurity/trivy-db:2 \
         --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db \
         --format cyclonedx \
-        -o /tmp/trivy_sbom.json \
+        -o /tmp/trivy_SBOM.json \
         --no-progress \
         << parameters.trivy-scan-target >>
   - run:
@@ -82,12 +82,13 @@ steps:
   - store_artifacts:
       path: /tmp/trivy_scan.json
   - store_artifacts:
-      path: /tmp/trivy_sbom.json
+      path: /tmp/trivy_SBOM.json
   - run:
       name: Upload SBOM to S3
       command: |
-        TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
-        aws s3 cp /tmp/trivy_sbom.json s3://hcc-sbom-shared/docker_image_scans/${CIRCLE_PROJECT_REPONAME}/${TIMESTAMP}/sbom.json
+        TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        SBOM_FILENAME=$(echo << parameters.trivy-scan-target >> | tr ':' '_')__${SHORT_GIT_HASH}__SBOM.json
+        aws s3 cp /tmp/trivy_SBOM.json s3://hcc-sbom-shared/docker_image_scans/${CIRCLE_PROJECT_REPONAME}/${TIMESTAMP}/${SBOM_FILENAME}
   - run: echo $TRIVY_HEAD
   - slack/notify:
       channel: CAV48UXJT
